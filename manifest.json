@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name":        "PhishGuard KZ",
+  "description": "AI-щит: проверка писем Gmail + GPT-объяснение риска",
+  "version":     "0.1.3",
+
+  "icons": {
+    "16":  "assets/icon.png",
+    "32":  "assets/icon.png",
+    "48":  "assets/icon.png",
+    "128": "assets/icon.png"
+  },
+
+  "action": {
+    "default_icon":  "assets/icon.png",
+    "default_title": "PhishGuard KZ",
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+    {
+      "matches":   ["https://mail.google.com/*"],
+      "js":        ["content.js"],
+      "run_at":    "document_idle",
+      "all_frames": true    
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+
+  "web_accessible_resources": [
+    { "resources": ["phishguard_model_onnx/*", "libs/*"], "matches": ["<all_urls>"] }
+  ],
+
+  "permissions":       ["storage", "activeTab", "scripting"],
+  "host_permissions":  ["https://api.openai.com/*", "http://127.0.0.1:8000/*"],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
+}

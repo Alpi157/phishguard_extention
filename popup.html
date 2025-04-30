@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>PhishGuard KZ</title>
+<style>
+  body{width:340px;font:14px/1.4 Arial;padding:12px}
+  textarea{width:100%;resize:vertical;padding:4px}
+  input[type=password]{width:100%;padding:4px;margin-top:4px}
+  button{margin-top:8px;padding:6px 12px;width:100%;cursor:pointer}
+  #resultBox{display:none;margin-top:10px;padding:8px;border-radius:4px}
+  #resultBox.ok  {background:#e7f8e7;border:1px solid #6bba6b}
+  #resultBox.mid {background:#fffbe7;border:1px solid #e5c96b}
+  #resultBox.warn{background:#ffe9e9;border:1px solid #e56b6b}
+  #resultBox .head{font-weight:700;margin-bottom:4px}
+  pre{white-space:pre-wrap;margin:0}
+  .small{font-size:12px;color:#777;text-align:center;margin-top:6px}
+</style>
+</head>
+<body>
+  <h2>PhishGuard KZ</h2>
+
+  <label>OpenAI-ключ:</label>
+  <input type="password" id="apiKey" placeholder="sk-…" />
+  <button id="saveKeyBtn">Сохранить ключ</button>
+
+  <hr>
+
+  <textarea id="messageInput" rows="7"
+            placeholder="Текст подставится автоматически, если выбрано письмо Gmail"></textarea>
+  <button id="analyzeBtn">Проверить письмо</button>
+
+  <div id="resultBox">
+    <div class="head" id="riskHeader"></div>
+    <pre id="gptExplanation"></pre>
+  </div>
+
+  <div class="small">v0.1.3 • откройте письмо → «Проверить»</div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

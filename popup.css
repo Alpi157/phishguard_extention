@@ -1,0 +1,24 @@
+.pg-body {
+  width: 320px;
+  font-family: Arial, sans-serif;
+  margin: 12px;
+}
+
+textarea {
+  width: 100%;
+  resize: vertical;
+}
+
+button {
+  margin-top: 8px;
+  padding: 6px 12px;
+}
+
+#resultBox.hidden {
+  display: none;
+}
+
+#riskHeader {
+  margin: 12px 0 6px;
+  font-weight: bold;
+}
