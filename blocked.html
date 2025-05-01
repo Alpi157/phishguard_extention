@@ -1,0 +1,19 @@
+<!doctype html><meta charset="utf-8">
+<style>
+body{margin:0;font:16px system-ui,sans-serif;
+     display:flex;flex-direction:column;align-items:center;justify-content:center;
+     height:100vh;background:#121212;color:#eee;text-align:center}
+h1{font-size:22px;margin:0 0 14px}
+p{max-width:480px;font-size:14px;margin:0 0 24px}
+a{color:#66aaff}
+</style>
+<img src="assets/icon.png" width="72">
+<h1>PhishGuard KZ</h1>
+<p id="msg"></p>
+<script>
+  const q=new URLSearchParams(location.search);
+  document.getElementById("msg").innerHTML=
+    `Подозрительная страница заблокирована.<br>
+     Оценка риска: <b>${q.get("risk")||"–"}</b>%<br><br>
+     <span style="font-size:13px;word-break:break-all">${q.get("url")||""}</span>`;
+</script>

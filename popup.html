@@ -1,41 +1,199 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>PhishGuard KZ</title>
-<style>
-  body{width:340px;font:14px/1.4 Arial;padding:12px}
-  textarea{width:100%;resize:vertical;padding:4px}
-  input[type=password]{width:100%;padding:4px;margin-top:4px}
-  button{margin-top:8px;padding:6px 12px;width:100%;cursor:pointer}
-  #resultBox{display:none;margin-top:10px;padding:8px;border-radius:4px}
-  #resultBox.ok  {background:#e7f8e7;border:1px solid #6bba6b}
-  #resultBox.mid {background:#fffbe7;border:1px solid #e5c96b}
-  #resultBox.warn{background:#ffe9e9;border:1px solid #e56b6b}
-  #resultBox .head{font-weight:700;margin-bottom:4px}
-  pre{white-space:pre-wrap;margin:0}
-  .small{font-size:12px;color:#777;text-align:center;margin-top:6px}
-</style>
+  <meta charset="UTF-8">
+  <title>PhishGuard KZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --text: #111;
+      --accent: #007acc;
+      --border: #ccc;
+      --safe: #e8f5e9;
+      --warn: #ffebee;
+      --mid:  #fff8e1;
+      --safe-border: #4caf50;
+      --warn-border: #f44336;
+      --mid-border:  #fbc02d;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1e1f21;
+        --text: #eee;
+        --accent: #3399ff;
+        --border: #444;
+        --safe: #1d3b2a;
+        --warn: #3b1d1d;
+        --mid:  #3b391d;
+        --safe-border: #81c784;
+        --warn-border: #ef5350;
+        --mid-border:  #fdd835;
+      }
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      width: 360px;
+      box-sizing: border-box;
+    }
+
+    h2, h3 {
+      margin: 0 0 12px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    textarea {
+      width: 100%;
+      resize: vertical;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      min-height: 100px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      width: 100%;
+      font-size: 15px;
+      margin-top: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      filter: brightness(1.1);
+    }
+
+    select, input {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      background: transparent;
+      color: var(--text);
+    }
+
+    #resultBox {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      display: none;
+    }
+
+    #resultBox.ok   { background: var(--safe); border: 1px solid var(--safe-border); }
+    #resultBox.warn { background: var(--warn); border: 1px solid var(--warn-border); }
+    #resultBox.mid  { background: var(--mid);  border: 1px solid var(--mid-border); }
+
+    #resultBox .head {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .link {
+      text-align: center;
+      margin-top: 12px;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .small {
+      font-size: 12px;
+      color: gray;
+      text-align: center;
+      margin-top: 6px;
+    }
+
+    .tab-hidden { display: none; }
+    .tab-active { display: block; }
+
+    /* 🔄 Loader */
+    .loader {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .loader span {
+      animation: blink 1.2s infinite steps(1, end);
+      display: inline-block;
+    }
+
+    .loader span:nth-child(2) { animation-delay: 0.2s; }
+    .loader span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes blink {
+      0%, 20% { color: transparent; }
+      50%     { color: var(--accent); }
+      100%    { color: transparent; }
+    }
+
+    /* ↩ Назад — верхний левый угол */
+    #backBtn {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      color: var(--accent);
+      font-size: 14px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h2>PhishGuard KZ</h2>
 
-  <label>OpenAI-ключ:</label>
-  <input type="password" id="apiKey" placeholder="sk-…" />
-  <button id="saveKeyBtn">Сохранить ключ</button>
+  <!-- 📨 Main tab -->
+  <div id="main" class="tab-active">
+    <h2 id="titleMain">PhishGuard KZ</h2>
+    <textarea id="messageInput" placeholder="..."></textarea>
+    <button id="analyzeBtn">Проверить письмо</button>
 
-  <hr>
+    <div class="loader" id="loadingDots" style="display:none">Анализ<span>.</span><span>.</span><span>.</span></div>
 
-  <textarea id="messageInput" rows="7"
-            placeholder="Текст подставится автоматически, если выбрано письмо Gmail"></textarea>
-  <button id="analyzeBtn">Проверить письмо</button>
+    <div id="resultBox">
+      <div class="head" id="riskHeader">...</div>
+      <div id="gptExplanation"></div>
+    </div>
 
-  <div id="resultBox">
-    <div class="head" id="riskHeader"></div>
-    <pre id="gptExplanation"></pre>
+    <div class="link" id="openSettings">⚙ Настройки</div>
+    <div class="small">v0.2.1</div>
   </div>
 
-  <div class="small">v0.1.3 • откройте письмо → «Проверить»</div>
+  <!-- ⚙ Settings tab -->
+  <div id="settings" class="tab-hidden">
+    <div id="backBtn">← Назад</div>
+    <h3 id="settingsHeader">Настройки</h3>
+
+    <label id="labelApi">OpenAI API-ключ:</label>
+    <input type="password" id="apiKey" placeholder="sk-..." />
+
+    <label id="labelLang">Язык расширения:</label>
+    <select id="lang">
+      <option value="ru">Русский</option>
+      <option value="kz">Қазақша</option>
+      <option value="en">English</option>
+    </select>
+
+    <button id="saveBtn">💾 Сохранить</button>
+    <div class="small" id="saveStatus" style="display:none">✓ Сохранено</div>
+  </div>
 
   <script type="module" src="popup.js"></script>
 </body>
