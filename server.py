@@ -60,14 +60,12 @@ TAG_RE = re.compile(r"<[^>]+>")
 KEYWORDS = re.compile(r"(login|password|verify|signin|bank|card|account)", re.I)
 
 def url_score(url: str) -> float:
-    """Скачиваем HTML как текст, отдаём его в ту же BERT-модель."""
     try:
         resp = requests.get(url, timeout=5, allow_redirects=True, headers={"User-Agent":"Mozilla"})
         html_text = html.unescape(resp.text)
     except Exception:
         return 1.0
 
-    # огрублённая очистка
     text = TAG_RE.sub(" ", html_text)
     if KEYWORDS.search(text):
         text += " possible phishing keywords"
