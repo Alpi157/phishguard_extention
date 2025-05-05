@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PhishGuard Scanner</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 600;
+      color: #212529;
+    }
+    .card {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      border: none;
+      border-radius: 1rem;
+      transition: transform 0.2s;
+    }
+    .card:hover {
+      transform: scale(1.01);
+    }
+    .card h5 {
+      font-weight: 600;
+      color: #343a40;
+    }
+    .btn-primary {
+      background-color: #0d6efd;
+      border-radius: 8px;
+      padding: 8px 16px;
+    }
+    .btn-primary:hover {
+      background-color: #0b5ed7;
+    }
+    .form-control {
+      border-radius: 8px;
+    }
+    .form-check-label {
+      font-size: 0.9rem;
+      color: #495057;
+    }
+    #resultsContainer {
+      border-radius: 1rem;
+      margin-top: 2rem;
+    }
+    .card-header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #dee2e6;
+      border-top-left-radius: 1rem;
+      border-top-right-radius: 1rem;
+    }
+    .card-body {
+      background-color: #ffffff;
+    }
+    .spinner-border {
+      width: 2rem;
+      height: 2rem;
+    }
+    ul {
+      padding-left: 1.2rem;
+    }
+    .text-danger {
+      font-weight: 500;
+    }
+    .text-success {
+      font-weight: 500;
+    }
+    .text-warning {
+      font-weight: 500;
+    }
+    .text-secondary {
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="container py-5">
+    <h1 class="mb-5 text-center">PhishGuard: Расширенное сканирование</h1>
+
+    <div class="row g-4 mb-5">
+
+      <div class="col-md-4">
+        <form id="scanUrlForm" class="card h-100 p-4">
+          <h5>Проверить URL</h5>
+          <input type="url" id="urlInput" class="form-control mb-3" placeholder="https://example.com" required />
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="hybridUrlCheckbox" />
+            <label class="form-check-label" for="hybridUrlCheckbox">Анализ в песочнице Hybrid</label>
+          </div>
+          <button class="btn btn-primary w-100">Проверить</button>
+        </form>
+      </div>
+
+      <div class="col-md-4">
+        <form id="scanDomainForm" class="card h-100 p-4">
+          <h5>Проверить домен</h5>
+          <input type="text" id="domainInput" class="form-control mb-3" placeholder="example.com" required />
+          <button class="btn btn-primary w-100">Проверить</button>
+        </form>
+      </div>
+
+      <div class="col-md-4">
+        <form id="scanFileForm" class="card h-100 p-4" enctype="multipart/form-data">
+          <h5>Проверить файл</h5>
+          <input type="file" id="fileInput" class="form-control mb-3" required />
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="hybridFileCheckbox" />
+            <label class="form-check-label" for="hybridFileCheckbox">Анализ в песочнице Hybrid</label>
+          </div>
+          <button class="btn btn-primary w-100">Проверить</button>
+        </form>
+      </div>
+    </div>
+
+
+    <div id="resultsContainer" class="card border border-3" style="display:none;">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">Результаты анализа</h5>
+        <button id="closeResults" class="btn btn-sm btn-outline-secondary">✕</button>
+      </div>
+      <div class="card-body">
+        <div id="vtResults"></div>
+        <div id="hybridResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const resultsContainer = document.getElementById("resultsContainer");
+      const vtResults        = document.getElementById("vtResults");
+      const hybridResults    = document.getElementById("hybridResults");
+      const urlForm          = document.getElementById("scanUrlForm");
+      const domainForm       = document.getElementById("scanDomainForm");
+      const fileForm         = document.getElementById("scanFileForm");
+      const urlInput         = document.getElementById("urlInput");
+      const domainInput      = document.getElementById("domainInput");
+      const fileInput        = document.getElementById("fileInput");
+      const hybridUrlChk     = document.getElementById("hybridUrlCheckbox");
+      const hybridFileChk    = document.getElementById("hybridFileCheckbox");
+      document.getElementById("closeResults").onclick = () => resultsContainer.style.display = "none";
+
+      async function postJson(endpoint, payload) {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+        return data;
+      }
+
+      async function doVTScan(endpoint, payload, isFile=false) {
+        if (isFile) {
+          const fd = new FormData();
+          fd.append("file", fileInput.files[0]);
+          const res = await fetch(endpoint, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+          return data;
+        }
+        return postJson(endpoint, payload);
+      }
+
+      async function doHybridScan(endpoint, payload, isFile=false) {
+        if (isFile) {
+          const fd = new FormData();
+          fd.append("file", fileInput.files[0]);
+          const res = await fetch(endpoint, { method: "POST", body: fd });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+          return data;
+        }
+        return postJson(endpoint, payload);
+      }
+
+      function renderVTResult(data, isFile) {
+        vtResults.innerHTML = "";
+        if (data.error) {
+          vtResults.innerHTML = `<div class="alert alert-danger">Ошибка: ${data.error}</div>`;
+          styleBorder("danger");
+          resultsContainer.style.display = "block";
+          return;
+        }
+        // Обработка полей VT
+        const info = data.data.attributes;
+        const stats = info.stats || info.last_analysis_stats || {};
+        const results = info.results || info.last_analysis_results || {};
+        const ts = info.date || info.last_analysis_date || info.last_modification_date;
+        const dateStr = ts ? new Date(ts * 1000).toLocaleString() : '—';
+        const malCnt = stats.malicious || 0;
+        vtResults.innerHTML += `<p><strong>Дата анализа:</strong> ${dateStr}</p>`;
+        vtResults.innerHTML += `<p><strong>Детекций (malicious):</strong> ${malCnt}</p>`;
+
+        let concl, color;
+        if      (malCnt >= 5) { concl = 'ВРЕДОНОСНОЕ'; color = 'danger'; }
+        else if (malCnt >= 2) { concl = 'ПОДОЗРИТЕЛЬНОЕ'; color = 'warning'; }
+        else if (malCnt === 1){ concl = 'НЕ ОСОБО ПОДОЗРИТЕЛЬНОЕ'; color = 'secondary'; }
+        else                  { concl = 'ЧИСТО'; color = 'success'; }
+        vtResults.innerHTML += `<p class="text-${color}"><strong>Заключение:</strong> ${concl}</p>`;
+
+        const engines = Object.entries(results)
+          .filter(([,r]) => r.category === 'malicious' || r.result === 'malicious')
+          .map(([name,r]) => `<li><strong>${name}</strong>${r.result ? ` — ${r.result}` : ''}</li>`);
+        if (engines.length) {
+          vtResults.innerHTML += `<p class="text-danger"><strong>Антивирусные движки:</strong></p><ul>${engines.join('')}</ul>`;
+        }
+        styleBorder(color);
+        resultsContainer.style.display = "block";
+      }
+
+      function renderHybridResult(summary) {
+        hybridResults.innerHTML = `<hr/><h5>Hybrid Analysis Sandbox</h5>`;
+        hybridResults.innerHTML += `<p><strong>Verdict:</strong> ${summary.verdict || '—'}</p>`;
+        hybridResults.innerHTML += `<p><strong>Threat Score:</strong> ${summary.threat_score || '—'}</p>`;
+        hybridResults.innerHTML += `<p><strong>AV detections:</strong> ${summary.av_detect || 0}</p>`;
+      }
+
+      function styleBorder(col) {
+        ['success','danger','warning','secondary'].forEach(c =>
+          resultsContainer.classList.remove(`border-${c}`)
+        );
+        resultsContainer.classList.add(`border-${col}`);
+      }
+
+      urlForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        vtResults.innerHTML = hybridResults.innerHTML = "";
+        try {
+          const vtData = await doVTScan('/api/scan_url', { url: urlInput.value.trim() });
+          renderVTResult(vtData, false);
+        } catch (ex) {
+          renderVTResult({ error: ex.message }, false);
+          return;
+        }
+        if (hybridUrlChk.checked) {
+          hybridResults.innerHTML = `<div class="mt-3"><em>Ждём песочницу… (до 5 мин.)</em></div><div class="spinner-border"></div>`;
+          try {
+            const sum = await doHybridScan('/api/hybrid/url', { url: urlInput.value.trim() });
+            renderHybridResult(sum);
+          } catch (ex) {
+            hybridResults.innerHTML = `<p class="text-danger">Hybrid: ${ex.message}</p>`;
+          }
+        }
+      });
+
+      domainForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        vtResults.innerHTML = hybridResults.innerHTML = "";
+        try {
+          const vtData = await doVTScan('/api/scan_domain', { domain: domainInput.value.trim() });
+          renderVTResult(vtData, false);
+        } catch (ex) {
+          renderVTResult({ error: ex.message }, false);
+        }
+      });
+
+      fileForm.addEventListener("submit", async e => {
+        e.preventDefault();
+        vtResults.innerHTML = hybridResults.innerHTML = "";
+        try {
+          const vtData = await doVTScan('/api/scan_file', null, true);
+          renderVTResult(vtData, true);
+        } catch (ex) {
+          renderVTResult({ error: ex.message }, true);
+          return;
+        }
+        if (hybridFileChk.checked) {
+          hybridResults.innerHTML = `<div class="mt-3"><em>Ждём песочницу… (до 5 мин.)</em></div><div class="spinner-border"></div>`;
+          try {
+            const sum = await doHybridScan('/api/hybrid/file', null, true);
+            renderHybridResult(sum);
+          } catch (ex) {
+            hybridResults.innerHTML = `<p class="text-danger">Hybrid: ${ex.message}</p>`;
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

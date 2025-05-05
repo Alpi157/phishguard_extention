@@ -1,0 +1,139 @@
+:root {
+  --color-bg:         #f4f6f8;
+  --color-surface:    #ffffff;
+  --color-primary:    #1e88e5;
+  --color-secondary:  #f39c12;
+  --color-text:       #333333;
+  --color-text-light: #666666;
+  --color-border:     #e0e0e0;
+  --radius:           8px;
+  --shadow:           0 2px 8px rgba(0,0,0,0.06);
+  --spacing:          16px;
+  --font-base:        'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: var(--spacing);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-base);
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing);
+  color: var(--color-primary);
+}
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing);
+  margin-bottom: var(--spacing);
+}
+
+
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing);
+  align-items: flex-end;
+}
+#controls .control-group {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+#controls label {
+  margin-bottom: 4px;
+  color: var(--color-text-light);
+}
+#controls input,
+#controls select,
+#controls button {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-base);
+}
+#controls button {
+  background: var(--color-primary);
+  color: #fff;
+  cursor: pointer;
+  transition: background .2s;
+}
+#controls button:hover {
+  background: #1565c0;
+}
+
+/* Insights */
+#insights {
+  display: flex;
+  align-items: center;
+  background: var(--color-secondary);
+  color: #fff;
+  border-radius: var(--radius);
+  padding: var(--spacing);
+  font-size: 1rem;
+  font-weight: 500;
+}
+#insights::before {
+  content: "🧠";
+  margin-right: 8px;
+  font-size: 1.2rem;
+}
+
+/* Chart grid: two columns */
+.chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing);
+  margin-top: var(--spacing);
+}
+.chart-card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--spacing);
+  position: relative;
+  height: 320px;
+}
+.chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text-light);
+}
+
+/* Table */
+.table-card {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+}
+th, td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+  font-size: 0.9rem;
+}
+th {
+  background: var(--color-bg);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  font-weight: 600;
+  color: var(--color-text-light);
+}
+tbody tr:hover {
+  background: rgba(30,136,229,0.05);
+}

@@ -90,18 +90,18 @@
       color: var(--text);
     }
 
-    #resultBox {
+    #resultBox, #urlResult {
       margin-top: 16px;
       padding: 12px;
       border-radius: 8px;
       display: none;
     }
 
-    #resultBox.ok   { background: var(--safe); border: 1px solid var(--safe-border); }
-    #resultBox.warn { background: var(--warn); border: 1px solid var(--warn-border); }
-    #resultBox.mid  { background: var(--mid);  border: 1px solid var(--mid-border); }
+    #resultBox.ok, #urlResult.ok   { background: var(--safe); border: 1px solid var(--safe-border); }
+    #resultBox.warn, #urlResult.warn { background: var(--warn); border: 1px solid var(--warn-border); }
+    #resultBox.mid, #urlResult.mid  { background: var(--mid);  border: 1px solid var(--mid-border); }
 
-    #resultBox .head {
+    #resultBox .head, #urlResult .head {
       font-weight: bold;
       font-size: 16px;
       margin-bottom: 6px;
@@ -125,7 +125,6 @@
     .tab-hidden { display: none; }
     .tab-active { display: block; }
 
-    /* 🔄 Loader */
     .loader {
       text-align: center;
       margin-top: 10px;
@@ -146,8 +145,7 @@
       100%    { color: transparent; }
     }
 
-    /* ↩ Назад — верхний левый угол */
-    #backBtn {
+    #backBtn, #backBtnUrl {
       position: absolute;
       left: 12px;
       top: 12px;
@@ -155,6 +153,7 @@
       font-size: 14px;
       cursor: pointer;
     }
+
     .checkbox-row {
       display: flex;
       align-items: center;
@@ -162,16 +161,16 @@
       margin-bottom: 12px;
       cursor: pointer;
     }
+
     .checkbox-row input[type="checkbox"] {
       width: 16px;
       height: 16px;
     }
-
   </style>
 </head>
 <body>
 
-  <!-- 📨 Main tab -->
+
   <div id="main" class="tab-active">
     <h2 id="titleMain">PhishGuard KZ</h2>
     <textarea id="messageInput" placeholder="..."></textarea>
@@ -184,12 +183,38 @@
       <div id="gptExplanation"></div>
     </div>
 
+    <div class="link" id="openURLTab">🔗 Проверить ссылку</div>
     <div class="link" id="openSettings">⚙ Настройки</div>
-    <div class="small">v0.2.1</div>
-    <div class="small" id="adStats"></div>
+    <div class="small">v0.3.0</div>
   </div>
 
-  <!-- ⚙ Settings tab -->
+
+  <div id="urlTab" class="tab-hidden">
+    <div id="backBtnUrl">← Назад</div>
+    <h3 id="urlHeader">Проверка ссылки</h3>
+
+    <input type="text" id="urlInput" placeholder="https://example.com">
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="manualSandbox">
+      <span id="labelManualSandbox">Использовать песочницу</span>
+    </label>
+
+    <button id="checkUrlBtn">Проверить URL</button>
+
+    <div class="loader" id="urlLoader" style="display:none">Анализ<span>.</span><span>.</span><span>.</span></div>
+
+    <div class="link" id="openScanner">🧪 Расширенное сканирование</div>
+
+
+
+    <div id="urlResult">
+      <div class="head" id="urlRiskHeader">...</div>
+      <div id="urlExplanation"></div>
+    </div>
+  </div>
+
+
   <div id="settings" class="tab-hidden">
     <div id="backBtn">← Назад</div>
     <h3 id="settingsHeader">Настройки</h3>
@@ -200,18 +225,20 @@
     <label id="labelHa">Hybrid-Analysis API-ключ:</label>
     <input type="password" id="haKey" placeholder="(необязательно)" />
 
+    <label id="labelIndicator" class="checkbox-row">
+      <input type="checkbox" id="indicatorEnabled">
+      <span id="txtIndicator">Показывать индикатор риска в Gmail</span>
+    </label>
 
     <label id="labelHaToggle" class="checkbox-row">
       <input type="checkbox" id="haEnabled" />
       <span id="txtHaToggle">Запускать Hybrid-Analysis при клике</span>
     </label>
 
-
     <label id="labelAdblock" class="checkbox-row">
       <input type="checkbox" id="adblockEnabled">
       <span id="txtAdblock">Включить AdBlock</span>
     </label>
-
 
     <label id="labelLang">Язык расширения:</label>
     <select id="lang">

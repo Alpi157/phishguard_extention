@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>PhishGuard KZ — SOC Dashboard</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="/static/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <h1>PhishGuard KZ — SOC Dashboard</h1>
+
+
+  <div id="controls" class="card">
+    <div class="control-group">
+      <label for="limitInput">Записей</label>
+      <input type="number" id="limitInput" value="100" min="1">
+    </div>
+    <div class="control-group">
+      <label for="riskFilter">Риск</label>
+      <select id="riskFilter">
+        <option value="">Все</option>
+        <option value="high">high</option>
+        <option value="medium">medium</option>
+        <option value="low">low</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label for="userFilter">Пользователь</label>
+      <input type="text" id="userFilter" placeholder="email">
+    </div>
+    <div class="control-group">
+      <label for="dateFrom">Дата с</label>
+      <input type="date" id="dateFrom">
+    </div>
+    <div class="control-group">
+      <label for="dateTo">по</label>
+      <input type="date" id="dateTo">
+    </div>
+    <div class="control-group">
+      <label for="groupBy">Группировать по</label>
+      <select id="groupBy">
+        <option value="">Нет</option>
+        <option value="domain">Домен ссылки</option>
+      </select>
+    </div>
+    <button id="refreshBtn">Обновить</button>
+  </div>
+
+
+  <div id="insights">Загрузка рекомендаций…</div>
+
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">Распределение риска</div>
+      <canvas id="riskChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Атак за день (7 дн.)</div>
+      <canvas id="dailyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Атак за неделю (4 нед.)</div>
+      <canvas id="weeklyChart"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Топ пользователей</div>
+      <canvas id="usersChart"></canvas>
+    </div>
+  </div>
+
+
+  <div id="content" class="card table-card"></div>
+
+  <script>
+    let currentIncidents = [];
+
+    async function loadIncidents() {
+      const limit = document.getElementById('limitInput').value;
+      const risk  = document.getElementById('riskFilter').value;
+      const user  = document.getElementById('userFilter').value.trim().toLowerCase();
+      const dateFrom = document.getElementById('dateFrom').value;
+      const dateTo   = document.getElementById('dateTo').value;
+      const groupBy  = document.getElementById('groupBy').value;
+
+      const resp = await fetch(`/incidents?limit=${limit}`);
+      const data = await resp.json();
+
+      const filtered = data.filter(i => {
+        if (risk && i.risk !== risk) return false;
+        if (user && !i.user.toLowerCase().includes(user)) return false;
+        const d = i.timestamp.slice(0,10);
+        if (dateFrom && d < dateFrom) return false;
+        if (dateTo   && d > dateTo)   return false;
+        return true;
+      });
+
+      currentIncidents = filtered;
+      renderInsights(filtered);
+      renderCharts(filtered);
+      renderContent(filtered, groupBy);
+      bindDrillDown();
+    }
+
+    function renderInsights(incidents) {
+      const phishing = incidents.filter(i => i.risk==='high'||i.risk==='medium');
+      const el = document.getElementById('insights');
+      if (!phishing.length) {
+        el.textContent = '🔍 За выбранный период не зафиксировано фишинговых инцидентов.';
+        return;
+      }
+      const themeMap = {};
+      phishing.forEach(i => {
+        const theme = (i.explanation||'').split(/[.?!]/)[0].trim();
+        if (theme) themeMap[theme] = (themeMap[theme]||0) + 1;
+      });
+      const sorted = Object.entries(themeMap).sort((a,b)=>b[1]-a[1]).slice(0,2);
+      let msg;
+      if (sorted.length>1) {
+        const [t1,c1]=sorted[0], [t2,c2]=sorted[1];
+        msg = `⚠️ Топ-2 фишинговых векторов: «${t1}» (${c1}), «${t2}» (${c2}). Обновите обучающие материалы.`;
+      } else {
+        const [t,c]=sorted[0];
+        msg = `⚠️ Вектор «${t}» зафиксирован ${c} раз. Рекомендуем усилить обучение по нему.`;
+      }
+      el.textContent = msg;
+    }
+
+    function bindDrillDown() {
+      document.getElementById('riskChart').onclick = e => {
+        const pts = charts.riskChart.getElementsAtEventForMode(e,'nearest',{intersect:true},true);
+        if(!pts.length) return;
+        const lvl = charts.riskChart.data.labels[pts[0].index];
+        renderContent(currentIncidents.filter(i=>i.risk===lvl));
+      };
+      document.getElementById('dailyChart').onclick = e => {
+        const pts = charts.dailyChart.getElementsAtEventForMode(e,'nearest',{intersect:true},true);
+        if(!pts.length) return;
+        const day = charts.dailyChart.data.labels[pts[0].index];
+        renderContent(currentIncidents.filter(i=>i.timestamp.startsWith(day)));
+      };
+    }
+
+    function extractDomain(text) {
+      const m = text.match(/https?:\/\/[^\s"]+/i);
+      try { return m ? new URL(m[0]).hostname : '—'; }
+      catch { return '—'; }
+    }
+    function getLastNDates(n) {
+      return Array.from({length:n},(_,i)=>{
+        const d=new Date(); d.setDate(d.getDate()-(n-1-i));
+        return d.toISOString().slice(0,10);
+      });
+    }
+    function getWeekString(date) {
+      const d=new Date(Date.UTC(date.getFullYear(),date.getMonth(),date.getDate()));
+      const dayNum=d.getUTCDay()||7; d.setUTCDate(d.getUTCDate()+4-dayNum);
+      const ys=new Date(Date.UTC(d.getUTCFullYear(),0,1));
+      const wn=Math.ceil((((d-ys)/86400000)+1)/7);
+      return `${d.getUTCFullYear()}-W${String(wn).padStart(2,'0')}`;
+    }
+
+    function renderCharts(incidents) {
+      // риск
+      const cnt={low:0,medium:0,high:0};
+      incidents.forEach(i=>cnt[i.risk]++);
+      updateChart('riskChart','bar',['low','medium','high'],['low','medium','high'].map(r=>cnt[r]));
+
+      // daily
+      const days=getLastNDates(7);
+      updateChart('dailyChart','line',days,
+        days.map(d=>incidents.filter(i=>i.timestamp.startsWith(d)).length));
+
+      // weekly
+      const wks=Array.from({length:4},(_,i)=>{
+        const d=new Date(); d.setDate(d.getDate()-7*(3-i)); return getWeekString(d);
+      });
+      updateChart('weeklyChart','bar',wks,
+        wks.map(w=>incidents.filter(i=>getWeekString(new Date(i.timestamp))===w).length));
+
+      // users
+      const um={};
+      incidents.forEach(i=>um[i.user]=(um[i.user]||0)+1);
+      const users=Object.entries(um).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      updateChart('usersChart','bar',users.map(e=>e[0]),users.map(e=>e[1]));
+    }
+
+    const charts = {};
+    function updateChart(id,type,labels,data) {
+      const ctx=document.getElementById(id).getContext('2d');
+      const opts={responsive:true,maintainAspectRatio:false,
+        scales:{ x:{ticks:{autoSkip:true,maxRotation:45,minRotation:45}},y:{beginAtZero:true}},
+        plugins:{legend:{display:false}}
+      };
+      if(charts[id]) {
+        charts[id].data.labels=labels;
+        charts[id].data.datasets[0].data=data;
+        charts[id].update();
+      } else {
+        charts[id] = new Chart(ctx,{ type, data:{
+          labels, datasets:[{
+            backgroundColor:'rgba(30,136,229,0.5)',
+            borderColor:'rgba(30,136,229,1)',
+            borderWidth:2,
+            data
+          }]
+        }, options:opts });
+      }
+    }
+
+    function renderTable(list) {
+      const tbl=document.createElement('table');
+      tbl.innerHTML=`
+        <thead>
+          <tr><th>Время</th><th>Пользователь</th><th>Risk</th><th>Explanation</th></tr>
+        </thead>
+        <tbody>
+          ${list.map(i=>`
+            <tr>
+              <td>${i.timestamp}</td>
+              <td>${i.user}</td>
+              <td>${i.risk}</td>
+              <td>${i.explanation}</td>
+            </tr>`).join('')}
+        </tbody>`;
+      return tbl;
+    }
+
+    function renderContent(incidents, groupBy) {
+      const container=document.getElementById('content');
+      container.innerHTML='';
+      if(groupBy==='domain') {
+        const grp={};
+        incidents.forEach(i=>{
+          const dom=extractDomain(i.text||i.explanation);
+          (grp[dom]=grp[dom]||[]).push(i);
+        });
+        Object.entries(grp).forEach(([dom,list])=>{
+          const h=document.createElement('h3');
+          h.textContent=`Домен: ${dom} (${list.length})`;
+          container.appendChild(h);
+          container.appendChild(renderTable(list));
+        });
+      } else {
+        container.appendChild(renderTable(incidents));
+      }
+    }
+
+    document.getElementById('refreshBtn').onclick=loadIncidents;
+    window.addEventListener('load',loadIncidents);
+  </script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>PhishGuard KZ — Тарифные планы</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/plans.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Выберите тариф</h1>
+    <div class="pricing-grid">
+
+
+      <div class="plan-card">
+        <div class="plan-header">
+          <h2 class="plan-name">Free</h2>
+          <p class="plan-price">0$</p>
+        </div>
+        <div class="plan-body">
+          <p class="plan-target">Для частных лиц, студентов, домашних пользователей</p>
+          <ul class="features">
+            <li>Локальная ML-модель</li>
+            <li>GPT-объяснение (до 10 писем/день)</li>
+            <li>Простая панель расширения</li>
+            <li>Без логирования, без внешнего сервера</li>
+          </ul>
+        </div>
+        <div class="plan-footer">
+          <button>Начать бесплатно</button>
+        </div>
+      </div>
+
+
+      <div class="plan-card">
+        <div class="plan-header">
+          <h2 class="plan-name">Plus</h2>
+          <p class="plan-price">от 5$/мес</p>
+        </div>
+        <div class="plan-body">
+          <p class="plan-target">Для IT-фрилансеров и малого бизнеса</p>
+          <ul class="features">
+            <li>Все из Free</li>
+            <li>Google Safe Browsing, VirusTotal</li>
+            <li>Расширенный HTML-анализ (iframe, eval, формы)</li>
+            <li>GPT-объяснение (до 50 писем/день через наш сервер)</li>
+          </ul>
+        </div>
+        <div class="plan-footer">
+          <button>Выбрать Plus</button>
+        </div>
+      </div>
+
+
+      <div class="plan-wrapper popular-wrapper">
+        <div class="popular-badge">ПОПУЛЯРНО</div>
+        <div class="plan-card popular">
+          <div class="plan-header">
+            <h2 class="plan-name">Pro</h2>
+            <p class="plan-price">от 10$/мес</p>
+          </div>
+          <div class="plan-body">
+            <p class="plan-target">Для малого бизнеса и ИБ-команд</p>
+            <ul class="features">
+              <li>Все из Plus</li>
+              <li>VirusTotal & Hybrid Analysis</li>
+              <li>Распознавание QR-фишинга</li>
+              <li>GPT-объяснение: приоритет + до 2 000 писем/мес</li>
+              <li>API для интеграций (ограниченный доступ)</li>
+            </ul>
+          </div>
+          <div class="plan-footer">
+            <button>Перейти на Pro</button>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="plan-card">
+        <div class="plan-header">
+          <h2 class="plan-name">Enterprise</h2>
+          <p class="plan-price">По запросу</p>
+        </div>
+        <div class="plan-body">
+          <p class="plan-target">Для банков, корпораций и госорганов</p>
+          <ul class="features">
+            <li>Все из Pro</li>
+            <li>SOC-дэшборд (локальный или в частном облаке)</li>
+            <li>Централизованный аудит, инциденты, отчёты</li>
+            <li>On-premise установка (Docker, Linux-сервер)</li>
+            <li>SLA-поддержка и кастомизация</li>
+            <li>ML-обучение на внутренних данных</li>
+          </ul>
+        </div>
+        <div class="plan-footer">
+          <button>Связаться с нами</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+<section class="comparison container">
+  <h2 class="comparison__title">Сравнение <span class="highlight">PhishGuard KZ</span> с альтернативами</h2>
+
+  <div class="comparison__scroller">
+    <table class="comparison__table">
+      <thead>
+        <tr>
+          <th data-left class="brand header-left">Функция / Решение</th>
+          <th class="brand">PhishGuard KZ</th>
+          <th>Google Safe Browsing</th>
+          <th>Microsoft Defender</th>
+          <th>Proofpoint Essentials</th>
+          <th>ZeroFox / Cofense</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-left>Поддержка брендов РК (Kaspi, Halyk…)</td>
+          <td class="yes">✔</td><td class="no">✖</td><td class="no">✖</td><td class="no">✖</td><td class="no">✖</td>
+        </tr>
+        <tr>
+          <td data-left>Локальная ML‑модель (офлайн‑инференс)</td>
+          <td class="yes">✔</td><td class="no">✖</td><td class="no">✖</td><td class="no">✖</td><td class="no">✖</td>
+        </tr>
+        <tr>
+          <td data-left>GPT‑объяснение (рус/каз)</td>
+          <td class="yes">✔</td><td class="no">✖</td><td class="no">✖</td><td class="no">✖</td><td class="no">✖</td>
+        </tr>
+        <tr>
+          <td data-left>HTML/JS‑анализ сайтов</td>
+          <td class="yes">✔</td><td class="partial">∼</td><td class="no">✖</td><td class="partial">∼</td><td class="yes">✔</td>
+        </tr>
+        <tr>
+          <td data-left>Анализ вложений (PDF, DOCX, HTML…)</td>
+          <td class="yes">✔</td><td class="no">✖</td><td class="partial">∼</td><td class="yes">✔</td><td class="yes">✔</td>
+        </tr>
+        <tr>
+          <td data-left>VirusTotal / Hybrid Analysis</td>
+          <td class="yes">✔</td><td class="partial">∼</td><td class="no">✖</td><td class="yes">✔</td><td class="yes">✔</td>
+        </tr>
+        <tr>
+          <td data-left>SOC‑дэшборд, аналитика</td>
+          <td class="yes">✔<span class="hint">Enterprise</span></td>
+          <td class="no">✖</td><td class="yes">✔</td><td class="yes">✔</td><td class="yes">✔</td>
+        </tr>
+        <tr>
+          <td data-left>On‑prem / Private Cloud</td>
+          <td class="yes">✔</td><td class="no">✖</td><td class="partial">∼</td><td class="partial">∼</td><td class="yes">✔</td>
+        </tr>
+        <tr>
+          <td data-left>Интерфейс на русском/казахском</td>
+          <td class="yes">✔</td><td class="partial">∼</td><td class="partial">∼</td><td class="no">✖</td><td class="no">✖</td>
+        </tr>
+        <tr>
+          <td data-left>Интеграция в Gmail, Outlook</td>
+          <td class="yes">✔</td><td class="partial">∼</td><td class="no">✖</td><td class="partial">∼</td><td class="no">✖</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  /* Базовые отступы */
+  .comparison { margin-top: 40px; }
+
+  /* Заголовок */
+  .comparison__title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: #1f2937;
+  }
+  .comparison__title .highlight {
+    color: #3b82f6;
+  }
+
+  /* Скроллер */
+  .comparison__scroller {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+
+  /* Таблица */
+  .comparison__table {
+    width: 100%;
+    min-width: 900px;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 0.95rem;
+    text-align: center;
+  }
+  .comparison__table th,
+  .comparison__table td {
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+
+  /* Шапка таблицы */
+  .comparison__table th {
+    background: #2563eb;
+    color: #fff !important;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .comparison__table th.brand {
+    background: #1e40af !important;
+  }
+
+  /* Первый заголовок */
+  .comparison__table th.header-left {
+    background: #2563eb !important;
+    color: #fff !important;
+    z-index: 3;
+  }
+
+  /* Фиксируем первый столбец */
+  .comparison__table th[data-left],
+  .comparison__table td[data-left] {
+    position: sticky;
+    left: 0;
+    text-align: left;
+    background: #f3f4f6;
+    font-weight: 500;
+    z-index: 1;
+  }
+
+  .comparison__table th[data-left].header-left {
+    background: #2563eb !important;
+    color: #fff !important;
+  }
+
+  /* Чередование строк */
+  .comparison__table tbody tr:nth-child(odd) {
+    background: #fafafa;
+  }
+
+  /* Отметки */
+  .comparison__table td.yes {
+    color: #10b981;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  .comparison__table td.no {
+    color: #ef4444;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  .comparison__table td.partial {
+    color: #f59e0b;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+
+  /* Подсказка Enterprise */
+  .comparison__table .hint {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.65rem;
+    color: #6b7280;
+  }
+</style>
+
+
+
+</body>
+</html>
