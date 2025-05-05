@@ -5,7 +5,7 @@
 
 ---
 
-## 📑 CONTENTS
+## CONTENTS
 
 1. [Purpose and Key Features](#1-purpose-and-key-features)  
 2. [Quick Start Guide for End Users](#2-quick-start-guide-for-end-users)  
