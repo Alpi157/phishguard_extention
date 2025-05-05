@@ -1,83 +1,84 @@
 # PHISHGUARD KZ
-**Расширение-щит от фишинга и вредоносных ссылок**  
-**Версия:** 0.3.1
+
+**Anti-phishing and malicious link protection extension**  
+**Version: 0.3.1**
 
 ---
 
-## СОДЕРЖАНИЕ
+## 📑 CONTENTS
 
-1. Назначение и ключевые возможности  
-2. Быстрый старт для конечного пользователя  
-3. Структура репозитория  
-4. Техническая архитектура  
-5. Подробности реализации подсистем  
-   - 5.1 Расширение Chrome / Edge  
-   - 5.2 Локальный сервер Flask  
-   - 5.3 ONNX модель RuBERT tiny2 (дообучение на 82 000 примеров)  
-   - 5.4 GPT объяснение (OpenAI API)  
-   - 5.5 Модуль статического анализа HTML / JS  
-   - 5.6 Песочница Hybrid Analysis  
-   - 5.7 AdBlock (EasyList + Казахстанские фишинговые домены)  
-   - 5.8 SOC дэшборд и централизованный журнал инцидентов  
-   - 5.9 Страница расширенного сканирования (VirusTotal + Hybrid Sandbox)  
-6. Особенности конфиденциальности и развёртывания on prem   
-8. Планы развития и TODO  
-
----
-
-## 1. НАЗНАЧЕНИЕ И КЛЮЧЕВЫЕ ВОЗМОЖНОСТИ
-
-**PhishGuard KZ** — это клиент-серверное решение, предназначенное для проактивной защиты пользователей Gmail и Outlook Web от фишинга, вредоносных ссылок и вирусных вложений.
-
-Отличительные особенности:
-- Инференс ONNX модели и первичный анализ проходят **локально**
-- Человеко-читаемое объяснение риска от **GPT**
-- Поддержка **русского и казахского языков**
-
-### Краткий список возможностей:
-
-- Локальная ML-модель (RuBERT tiny2) анализирует текст письма
-- GPT объяснение (до 2000 писем/мес. в тарифе Pro)
-- Расширенный анализ HTML / JS
-- Поддержка локальных брендов (Kaspi, Halyk, eGov и др.)
-- QR-сканирование ссылок
-- Интеграция с VirusTotal и Hybrid Analysis
-- Завеса при клике на подозрительную ссылку
-- AdBlock с динамической активацией
-- SOC дэшборд с графиками и AI-подсказками
-- Поддержка развёртывания on-prem / Private Cloud
-
+1. [Purpose and Key Features](#1-purpose-and-key-features)  
+2. [Quick Start Guide for End Users](#2-quick-start-guide-for-end-users)  
+3. [Repository Structure](#3-repository-structure)  
+4. [Technical Architecture](#4-technical-architecture)  
+5. [Implementation Details of Subsystems](#5-implementation-details-of-subsystems)  
+   - 5.1 Chrome / Edge Extension  
+   - 5.2 Local Flask Server  
+   - 5.3 ONNX Model: RuBERT tiny2 (fine-tuned on 82,000 examples)  
+   - 5.4 GPT Risk Explanation (OpenAI API)  
+   - 5.5 Static HTML / JS Analysis Module  
+   - 5.6 Hybrid Analysis Sandbox  
+   - 5.7 AdBlock (EasyList + Kazakhstani phishing domains)  
+   - 5.8 SOC Dashboard and Centralized Incident Log  
+   - 5.9 Advanced Scanning Page (VirusTotal + Hybrid Sandbox)  
+6. [Privacy and On-Premises Deployment Features](#6-privacy-and-on-premises-deployment-features)  
+7. [Roadmap and TODOs](#7-roadmap-and-todos)
 
 ---
 
-## Сравнение PhishGuard KZ с альтернативами
+## 1. Purpose and Key Features
 
-| Функция / Решение                          | PhishGuard KZ | Google Safe Browsing | Microsoft Defender | Proofpoint Essentials | ZeroFox / Cofense |
-|-------------------------------------------|:--------------:|:---------------------:|:------------------:|:----------------------:|:------------------:|
-| Поддержка брендов РК (Kaspi, Halyk…)      | ✔              | ✖                    | ✖                 | ✖                     | ✖                 |
-| Локальная ML‑модель (офлайн‑инференс)     | ✔              | ✖                    | ✖                 | ✖                     | ✖                 |
-| GPT‑объяснение (рус/каз)                  | ✔              | ✖                    | ✖                 | ✖                     | ✖                 |
-| HTML/JS‑анализ сайтов                     | ✔              | ∼                    | ✖                 | ∼                     | ✔                 |
-| Анализ вложений (PDF, DOCX, HTML…)        | ✔              | ✖                    | ∼                 | ✔                     | ✔                 |
-| VirusTotal / Hybrid Analysis              | ✔              | ∼                    | ✖                 | ✔                     | ✔                 |
-| SOC‑дэшборд, аналитика                    | ✔ (Enterprise) | ✖                    | ✔                 | ✔                     | ✔                 |
-| On‑prem / Private Cloud                   | ✔              | ✖                    | ∼                 | ∼                     | ✔                 |
-| Интерфейс на русском/казахском           | ✔              | ∼                    | ∼                 | ✖                     | ✖                 |
-| Интеграция в Gmail, Outlook               | ✔              | ∼                    | ✖                 | ∼                     | ✖                 |
+PhishGuard KZ is a client-server solution designed to proactively protect Gmail and Outlook Web users from phishing, malicious links, and infected attachments.
 
-**Легенда:**  
-✔ — Полная поддержка  
-∼ — Частичная поддержка  
-✖ — Отсутствует поддержка
+### Distinctive advantages:
+- ONNX model inference and initial analysis are performed locally
+- Human-readable risk explanations powered by GPT
+- Support for Russian and Kazakh languages
+
+### Key Features:
+- Local ML model (RuBERT tiny2) analyzes email text
+- GPT-based explanations (up to 2,000 emails/month in Pro plan)
+- Deep HTML / JS content analysis
+- Local brand awareness (Kaspi, Halyk, eGov, etc.)
+- QR code link detection and scanning
+- Integration with VirusTotal and Hybrid Analysis
+- Click-screening for suspicious links
+- Dynamic AdBlock activation
+- SOC dashboard with charts and AI-powered insights
+- On-prem / Private Cloud deployment support
 
 ---
 
-## 2. БЫСТРЫЙ СТАРТ ДЛЯ КОНЕЧНОГО ПОЛЬЗОВАТЕЛЯ
+## PhishGuard KZ Compared to Alternatives
 
-### Шаг 1 — Установить расширение в браузер
-- **Chrome / Edge**: Включить Developer Mode → Load unpacked → выбрать репозиторий
+| Feature / Solution                             | PhishGuard KZ | Google Safe Browsing | Microsoft Defender | Proofpoint Essentials | ZeroFox / Cofense |
+|------------------------------------------------|----------------|------------------------|---------------------|------------------------|--------------------|
+| Support for Kazakhstani brands (Kaspi, Halyk…)| ✔              | ✖                      | ✖                   | ✖                      | ✖                  |
+| Local ML model (offline inference)            | ✔              | ✖                      | ✖                   | ✖                      | ✖                  |
+| GPT explanations (RU/KZ)                      | ✔              | ✖                      | ✖                   | ✖                      | ✖                  |
+| HTML/JS website analysis                      | ✔              | ∼                      | ✖                   | ∼                      | ✔                  |
+| Attachment analysis (PDF, DOCX, HTML…)        | ✔              | ✖                      | ∼                   | ✔                      | ✔                  |
+| VirusTotal / Hybrid Analysis                  | ✔              | ∼                      | ✖                   | ✔                      | ✔                  |
+| SOC dashboard, analytics                      | ✔ (Enterprise) | ✖                      | ✔                   | ✔                      | ✔                  |
+| On-prem / Private Cloud support               | ✔              | ✖                      | ∼                   | ∼                      | ✔                  |
+| Russian/Kazakh interface                      | ✔              | ∼                      | ∼                   | ✖                      | ✖                  |
+| Gmail, Outlook integration                    | ✔              | ∼                      | ✖                   | ∼                      | ✖                  |
 
-### Шаг 2 — Запустить локальный сервер
+**Legend:**  
+✔ — Full support  
+∼ — Partial support  
+✖ — No support
+
+
+---
+
+
+## 2. Quick Start for End Users
+
+### Step 1 — Install the Extension in Your Browser
+- Chrome / Edge: Enable Developer Mode → Load unpacked → Select the repository folder
+
+### Step 2 — Start the Local Server
 ```bash
 python -m venv .venv
 source .venv/bin/activate
@@ -85,134 +86,125 @@ pip install -r requirements.txt
 python server.py
 ```
 
-### Шаг 3 — Настройка API ключей
-- В popup расширения указать **OpenAI API ключ** (`sk-...`)
-- При необходимости задать ключи **VirusTotal** и **Hybrid Analysis**
-
+### Step 3 — Configure API Keys
+- Enter your OpenAI API key (`sk-...`) in the extension popup
+- Optionally set VirusTotal and Hybrid Analysis keys if needed
 
 ---
 
-## 3. СТРУКТУРА РЕПОЗИТОРИЯ
+## 3. Repository Structure
 
-- `assets/` — иконки, логотип  
-- `libs/` — `jsqr.min.js` и другие сторонние скрипты  
-- `phishguard_model_onnx/` — ONNX файлы RuBERT tiny2  
-- `static/` — `dashboard.css`, `index.js` (интерфейс сканера)  
+- `assets/` — icons, logo  
+- `libs/` — `jsqr.min.js` and other third-party scripts  
+- `phishguard_model_onnx/` — ONNX files for RuBERT tiny2  
+- `static/` — `dashboard.css`, `index.js` (scanner UI)  
 - `templates/` — `dashboard.html`, `index.html`, `plans.html`  
-- `uploads/` — временное хранилище файлов для песочницы  
-- `background.js` — service worker расширения  
-- `content.js` — скрипт, работающий во вкладке Gmail / Outlook  
-- `manifest.json` — манифест расширения (MV3)  
-- `popup.{html,css,js}` — интерфейс и логика всплывающего окна  
-- `server.py` — единый Flask сервер (API + дэшборд + сканер)  
-- `filters.json` — правила EasyList + казахстанские фишинговые домены  
-- `incidents.jsonl` — журнал инцидентов (JSONL формат, ротация cron)
+- `uploads/` — temporary file storage for sandbox analysis  
+- `background.js` — extension service worker  
+- `content.js` — script running inside Gmail / Outlook tabs  
+- `manifest.json` — extension manifest (MV3)  
+- `popup.{html,css,js}` — popup UI and logic  
+- `server.py` — unified Flask server (API + dashboard + scanner)  
+- `filters.json` — EasyList + Kazakhstani phishing domains  
+- `incidents.jsonl` — incident log (JSONL format, rotated via cron)
 
 ---
 
-## 4. ТЕХНИЧЕСКАЯ АРХИТЕКТУРА
+## 4. Technical Architecture
 
 ```
 ┌───────────┐ content.js ┌──────────────┐ HTTP/REST ┌───────────────┐
 │  Gmail    │←──────────→│ background   │←─────────→│ Flask server  │
 │  Outlook  │ postMessage│ service WK   │ 127.0.0.1 │  (server.py)  │
 └───────────┘ └──────────────┘             └───────────────┘
-       │ локальные вызовы / Web Worker
+       │ Local calls / Web Worker
        │
        │ ONNX runtime (web)
-       └────── ML модель RuBERT tiny2 ──────┘
+       └────── ML model: RuBERT tiny2 ─────┘
 ```
 
-- Инференс ONNX происходит в браузере (WebAssembly) или на локальном сервере (CPU).
-- `background.js` взаимодействует с OpenAI API, Hybrid Analysis и AdBlock.
-- Все внешние вызовы (VT, HA, GPT) идут через service worker — полностью совместимо с Manifest V3.
+- ONNX inference is done in-browser (WebAssembly) or via the local server (CPU).
+- `background.js` interacts with OpenAI API, Hybrid Analysis, and AdBlock.
+- All external API calls (VT, HA, GPT) are routed through the service worker — fully Manifest V3 compliant.
+
 
 ---
 
-## 5. ПОДРОБНОСТИ ПОДСИСТЕМ
 
-### 5.1 Расширение Chrome / Edge / Firefox
+## 5. Subsystem Details
 
+### 5.1 Chrome / Edge / Firefox Extension
 - Manifest V3, CSP: `script-src 'self'`
-- Popup включает вкладки: «Письмо», «URL», «Настройки»
-- `content.js` использует `MutationObserver` для слежения за письмами
+- Popup includes tabs: **"Email"**, **"URL"**, **"Settings"**
+- `content.js` uses `MutationObserver` to monitor email content
 
-### 5.2 Flask сервер
+### 5.2 Flask Server
+- `/` — advanced scanning (`index.html`)
+- `/dashboard` — SOC dashboard (charts via Chart.js)
+- `/classify`, `/url` — ML model API endpoints
+- `/api/*` — proxy to VirusTotal and Hybrid Analysis
+- `/incidents`, `/incident` — interactions with `incidents.jsonl`
 
-- `/` — расширенное сканирование (`index.html`)
-- `/dashboard` — SOC дэшборд (графики `Chart.js`)
-- `/classify`, `/url` — API для ML-модели
-- `/api/*` — прокси к VirusTotal и Hybrid Analysis
-- `/incidents`, `/incident` — работа с `incidents.jsonl`
-
-### 5.3 ONNX модель
-
-- RuBERT tiny2 (93 МБ)
-- Дообучение на 92k писем
+### 5.3 ONNX Model
+- RuBERT tiny2 (93 MB)
+- Fine-tuned on 92,000 emails
 - Accuracy ≈ 0.95, threshold = 0.50
 
-### 5.4 GPT объяснение
+### 5.4 GPT Risk Explanation
+- GPT-4o mini, temperature 0.2, max 200 tokens
+- Returns strict JSON via system prompt
+- Sensitive data is obfuscated before transmission
 
-- GPT-4o mini, температура 0.2, макс. 200 токенов
-- Возврат строго в JSON по system prompt
-- Приватные данные обфусцируются перед отправкой
-
-### 5.5 HTML/JS анализ
-
-- Загружается HTML, ищутся теги `<input>`, `iframe`, `eval`, IP-скрипты
-- До 3 внешних JS загружаются (по 4 КБ)
-- Метаданные и фрагменты анализируются GPT-аудитором
+### 5.5 HTML/JS Analysis
+- Loads HTML, scans for `<input>`, `iframe`, `eval`, and IP-based scripts
+- Loads up to 3 external JS scripts (≤4 KB each)
+- Metadata and snippets are analyzed via GPT auditor
 
 ### 5.6 Hybrid Analysis
-
 - Env ID: 100 (Windows 10)
-- `/submit/url`, `/submit/file` → `job_id` → polling
-- Ограничение: файлы до 25 МБ
+- `/submit/url`, `/submit/file` → `job_id` → polling for results
+- File size limit: 25 MB
 
 ### 5.7 AdBlock
+- `filters.json` contains ~18,000 rules (EasyList + ~2,000 Kazakh domains)
+- Uses `updateDynamicRules` (limit: 30,000)
 
-- `filters.json` ≈ 18 000 правил (EasyList + 2 000 KZ-доменов)
-- Используется `updateDynamicRules` (до 30k)
+### 5.8 SOC Dashboard
+- Four charts: risk level, daily count, weekly trends, top users
+- GPT analyzes and highlights attack vectors
+- Interactive drill-down by clicking charts
 
-### 5.8 SOC дэшборд
-
-- Четыре графика: risk, daily, weekly, top users
-- GPT анализирует и выводит ключевые векторы атак
-- Drill-down на основе клика по графику
-
-### 5.9 Расширенный сканер
-
-- Основан на `index.html` + Bootstrap 5
-- Формы: URL, домен, файл (≤32 МБ)
-- Поддержка Hybrid Analysis с отложенным анализом
-- Цветовая граница результата: `success`, `warning`, `danger`
-
+### 5.9 Advanced Scanner
+- Built on `index.html` with Bootstrap 5
+- Supports URL, domain, and file input (≤32 MB)
+- Hybrid Analysis with deferred result polling
+- Colored result borders: success, warning, danger
 
 ---
 
-## 6. КОНФИДЕНЦИАЛЬНОСТЬ И ON PREM
+## 6. Privacy & On-Prem Deployment
 
-- Полный текст писем **никогда не покидает локальный хост**. В GPT передаётся только **обезличенный summary** объёмом до 1 КБ.
-- Поддерживается развёртывание **on prem**:
-  ```bash
-  docker compose up
-  ```
-  Укажите переменную `OPENAI_PROXY` или используйте свой Azure OpenAI endpoint.
-- SOC дэшборд можно поднять во внутреннем сегменте:
-  - Интеграция через **Syslog / Kafka** для передачи в SIEM
-
----
-
-## 7.  ПЛАНЫ РАЗВИТИЯ
-
-- **Мобильное SDK** (Android Share Target + MLKit)
-- Расширение для **Thunderbird** и **Outlook Desktop (MIP Add-ins)**
-- Модели **Vision + NLP** для анализа вложенных изображений
-- **IAM аутентификация** для Scanner UI (OIDC / Azure AD)
-- Поддержка шаблонов из **СНГ**
-- Автоматическая ротация `incidents.jsonl` → S3 / Minio (Parquet формат)
+- Full email texts **never** leave the local machine — GPT only receives an anonymized 1 KB summary.
+- Full on-premises deployment supported:
+```bash
+docker compose up
+```
+- You can specify the `OPENAI_PROXY` variable or use your own Azure OpenAI endpoint.
+- SOC dashboard supports internal deployment and can integrate with Syslog / Kafka for SIEM ingestion.
 
 ---
 
-© 2025 PhishGuard KZ
+## 7. Development Roadmap
 
+- Mobile SDK (Android Share Target + MLKit)
+- Support for Thunderbird and Outlook Desktop extensions (MIP Add-ins)
+- Vision + NLP models for analyzing embedded images
+- IAM authentication for Scanner UI (OIDC / Azure AD)
+- Phishing template support specific to the CIS region
+- Auto-rotation of `incidents.jsonl` → S3 / MinIO (Parquet format)
+
+---
+
+## License
+
+**MIT License**
